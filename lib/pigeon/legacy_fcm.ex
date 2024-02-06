@@ -61,7 +61,7 @@ defmodule Pigeon.LegacyFCM do
 
     defp legacy_fcm_opts do
       [
-        adapter: Pigeon.LegacyFCM, 
+        adapter: Pigeon.LegacyFCM,
         key: "your_fcm_key_here"
       ]
     end
@@ -74,8 +74,8 @@ defmodule Pigeon.LegacyFCM do
   msg = %{"body" => "your message"}
   n = Pigeon.LegacyFCM.Notification.new("your device registration ID", msg)
   ```
-   
-  5. Send the notification. 
+
+  5. Send the notification.
 
   Pushes are synchronous and return the notification with
   updated `:status` and `:response` keys. If `:status` is success, `:response`
@@ -194,6 +194,8 @@ defmodule Pigeon.LegacyFCM do
   alias Pigeon.{Configurable, NotificationQueue}
   alias Pigeon.Http2.{Client, Stream}
 
+  require Logger
+
   @impl true
   def init(opts) do
     config = Pigeon.LegacyFCM.Config.new(opts)
@@ -215,6 +217,17 @@ defmodule Pigeon.LegacyFCM do
   def handle_push(notification, %{config: config, queue: queue} = state) do
     headers = Configurable.push_headers(config, notification, [])
     payload = Configurable.push_payload(config, notification, [])
+
+    Logger.info(" =========== [FCM Legacy] =========== ")
+    Logger.info(" =========== Config =========== ")
+    Logger.info(inspect(config))
+    Logger.info(" =========== Notification =========== ")
+    Logger.info(inspect(notification))
+    Logger.info(" =========== Headers =========== ")
+    Logger.info(inspect(headers))
+    Logger.info(" =========== Payload =========== ")
+    Logger.info(inspect(payload))
+    Logger.info(" =========== =========== ")
 
     Client.default().send_request(state.socket, headers, payload)
 
